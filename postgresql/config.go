@@ -320,7 +320,6 @@ func (c *Config) connStr(database string) string {
 	}
 	log.Printf("[INFO] connection string in connstring function: %s", connStr)
 
-
 	return connStr
 }
 
