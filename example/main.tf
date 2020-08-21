@@ -10,7 +10,7 @@ resource "random_id" "db_name_suffix" {
 resource "google_sql_database_instance" "master" {
   name = "master-instance-${random_id.db_name_suffix.hex}"
   database_version = "POSTGRES_11"
-
+  region = "europe-west2"
   settings {
     tier = "db-f1-micro"
   }
@@ -24,7 +24,6 @@ resource "random_password" "sql_user_password" {
 resource "google_sql_user" "user" {
   name     = "me"
   instance = google_sql_database_instance.master.name
-  host     = "me.com"
   password = random_password.sql_user_password.result
 }
 
@@ -34,11 +33,12 @@ provider "postgresql" {
 
   database = "postgres"
   gcp_connection_string = google_sql_database_instance.master.connection_name
+  expected_version = "11.0.0"
 }
 
 resource "postgresql_database" "my_db" {
   name              = "my_db"
-  owner             = "my_role"
+  owner             = google_sql_user.user.name
   template          = "template0"
   lc_collate        = "C"
   connection_limit  = -1

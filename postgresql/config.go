@@ -130,6 +130,9 @@ func (c *Config) NewClient(database string) (*Client, error) {
 	defer dbRegistryLock.Unlock()
 
 	dsn := c.connStr(database)
+	log.Printf("[INFO] connection strings %s %s", c.GCPConnectionString, c.AWSConnectionString)
+	log.Printf("[INFO] connection string: `%s`", dsn)
+	fmt.Println(dsn)
 	dbEntry, found := dbRegistry[dsn]
 	if !found {
 		var db *sql.DB
@@ -309,12 +312,14 @@ func (c *Config) connStr(database string) string {
 
 		connStr = fmt.Sprintf(dsnFmt, connValues...)
 	}
-
 	if c.AWSConnectionString != "" {
 		connStr = fmt.Sprintf("awspostgres://%s:%s@%s/%s", c.Username, c.Password, c.AWSConnectionString, database)
 	} else if c.GCPConnectionString != "" {
-		connStr = fmt.Sprintf("gcppostgres://%s:%s@%s/%s", c.Username, c.Password, c.GCPConnectionString, database)
+		connstring := strings.ReplaceAll(c.GCPConnectionString, ":", "/")
+		connStr = fmt.Sprintf("gcppostgres://%s:%s@%s/%s", c.Username, c.Password, connstring, database)
 	}
+	log.Printf("[INFO] connection string in connstring function: %s", connStr)
+
 
 	return connStr
 }
