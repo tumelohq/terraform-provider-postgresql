@@ -8,6 +8,10 @@ default: build
 build: fmtcheck
 	go install
 
+build_for_example:
+	go build -o terraform-provider-postgresql main.go
+	cp terraform-provider-postgresql example/
+
 test: fmtcheck
 	go test -i $(TEST) || exit 1
 	echo $(TEST) | \
